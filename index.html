@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="90-Day Plan">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a5f4a">
+<title>90-Day Action Plan</title>
+<link rel="manifest" href="data:application/json,%7B%22name%22%3A%2290-Day%20Action%20Plan%22%2C%22short_name%22%3A%2290-Day%20Plan%22%2C%22start_url%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23f7f5f0%22%2C%22theme_color%22%3A%22%231a5f4a%22%2C%22icons%22%3A%5B%5D%7D">
+<style>
+:root {
+  --primary: #1a5f4a;
+  --primary-dark: #0f3d2f;
+  --accent: #c9a227;
+  --bg: #f7f5f0;
+  --card: #ffffff;
+  --text: #1e2937;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --radius: 12px;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 1.5rem 1.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+header h1 { font-size: 1.35rem; font-weight: 700; }
+header .subtitle { opacity: 0.9; font-size: 0.9rem; margin-top: 0.25rem; }
+.container { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
+.nav {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.75rem 0;
+  margin-bottom: 1rem;
+  scrollbar-width: thin;
+}
+.nav button {
+  flex: 0 0 auto;
+  padding: 0.6rem 1rem;
+  border: none;
+  background: white;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  color: var(--muted);
+  box-shadow: var(--shadow);
+  transition: all 0.15s;
+}
+.nav button.active {
+  background: var(--primary);
+  color: white;
+}
+.section { display: none; }
+.section.active { display: block; }
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.card h2 { font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--primary-dark); }
+.card h3 { font-size: 1.05rem; margin: 1rem 0 0.5rem; }
+.progress-wrap { margin: 0.75rem 0 1.25rem; }
+.progress-bar {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #22c55e);
+  width: 0%;
+  transition: width 0.3s;
+}
+.progress-label { font-size: 0.85rem; color: var(--muted); margin-top: 0.35rem; }
+.action-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.action-item:last-child { border-bottom: none; }
+.action-item input[type="checkbox"] {
+  margin-top: 0.25rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+.action-content { flex: 1; }
+.action-title { font-weight: 500; }
+.action-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+}
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: var(--muted);
+  font-weight: 500;
+}
+.badge.resp { background: #ecfdf5; color: #047857; }
+.badge.deadline { background: #fff7ed; color: #c2410c; }
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+.kpi-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem;
+  background: #fafafa;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.kpi-item input { margin-top: 0.2rem; accent-color: var(--primary); }
+.kpi-item.done { background: #f0fdf4; border-color: #bbf7d0; }
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.stat {
+  background: white;
+  padding: 1rem;
+  border-radius: var(--radius);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.stat .num { font-size: 1.75rem; font-weight: 700; color: var(--primary); }
+.stat .label { font-size: 0.8rem; color: var(--muted); }
+.note {
+  background: #fffbeb;
+  border-left: 4px solid var(--accent);
+  padding: 1rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+.business-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0.75rem 0;
+}
+.business-box h4 { color: var(--primary-dark); margin-bottom: 0.35rem; }
+.footer-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+button.primary, button.secondary {
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-size: 0.9rem;
+}
+button.primary { background: var(--primary); color: white; }
+button.secondary { background: white; border: 1px solid var(--border); color: var(--text); }
+@media (max-width: 640px) {
+  header { padding: 1rem 0.75rem; }
+  header h1 { font-size: 1.2rem; }
+  .container { padding: 0.5rem 0.75rem 5rem; }
+  .nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom));
+    margin: 0;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+    z-index: 200;
+    gap: 0.25rem;
+    justify-content: space-around;
+  }
+  .nav button {
+    flex: 1;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.7rem;
+    border-radius: 8px;
+    min-height: 48px;
+  }
+  .action-item { padding: 1rem 0; }
+  .action-item input[type="checkbox"] { width: 1.4rem; height: 1.4rem; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+}
+@media print {
+  header, .nav, .footer-actions { display: none !important; }
+  .section { display: block !important; page-break-inside: avoid; }
+  body { background: white; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>90-Day Action Plan</h1>
+    <div class="subtitle">Shop Sanitation, Compliance & Sales Growth &nbsp;|&nbsp; 1 Nov 2026 – 31 Jan 2027</div>
+    <div class="subtitle" style="margin-top:0.6rem; font-size:1.05rem; font-weight:700;">Albarka Harith Foodstuff &nbsp;•&nbsp; Azzahra Fabrics</div>
+  </div>
+</header>
+
+<div class="container">
+  <nav class="nav">
+    <button class="active" data-tab="dashboard">Dashboard</button>
+    <button data-tab="nov">November</button>
+    <button data-tab="dec">December</button>
+    <button data-tab="jan">January</button>
+    <button data-tab="scorecard">Scorecard</button>
+    <button data-tab="routines">Routines</button>
+    <button data-tab="notes">Notes & Policy</button>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="section active">
+    <div class="stats">
+      <div class="stat"><div class="num" id="overall-pct">0%</div><div class="label">Overall Progress</div></div>
+      <div class="stat"><div class="num" id="nov-pct">0%</div><div class="label">November</div></div>
+      <div class="stat"><div class="num" id="dec-pct">0%</div><div class="label">December</div></div>
+      <div class="stat"><div class="num" id="jan-pct">0%</div><div class="label">January</div></div>
+    </div>
+
+    <div class="card">
+      <h2>Chairman’s Directive</h2>
+      <p style="margin-bottom:0.75rem;"><strong>By 31 January 2027, every shop must be clean, properly stocked, financially accountable, compliant with approved company policies and demonstrating measurable improvement in sales and profitability.</strong></p>
+      <ul style="padding-left:1.25rem; font-size:0.95rem;">
+        <li>No unrecorded sales.</li>
+        <li>No unauthorized credit.</li>
+        <li>No expired or non-compliant products offered for sale.</li>
+        <li>No unexplained cash or inventory losses.</li>
+        <li>Every transaction must be traceable.</li>
+        <li>Every branch must produce reliable management information.</li>
+      </ul>
+      <p style="margin-top:1rem; font-size:0.9rem; color:var(--muted);">Sales accountability rests with Branch Managers. Compliance verification is independent.</p>
+    </div>
+
+    <div class="card">
+      <h2>Programme Overview</h2>
+      <p><strong>Month 1 — November:</strong> Sanitize and secure. Eliminate expired/non-compliant products, reconcile inventory, establish financial controls, clean premises.</p>
+      <p style="margin-top:0.5rem;"><strong>Month 2 — December:</strong> Standardize and grow. Make controls routine, improve merchandising, launch structured sales campaigns, strengthen retention.</p>
+      <p style="margin-top:0.5rem;"><strong>Month 3 — January:</strong> Audit, optimize and sustain. Independently verify compliance, measure results, eliminate recurring weaknesses, lock in permanent standards.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="dash-progress"></div></div>
+        <div class="progress-label" id="dash-label">0 of 34 actions completed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVEMBER -->
+  <div id="nov" class="section">
+    <div class="card">
+      <h2>Month 1 — November 2026: Sanitation and Control</h2>
+      <p style="color:var(--muted); margin-bottom:0.5rem;">Priority: Correct existing weaknesses and establish a reliable baseline.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="nov-progress"></div></div>
+        <div class="progress-label" id="nov-label">0 / 12 completed</div>
+      </div>
+      <div id="nov-actions"></div>
+      <div class="note"><strong>November Deliverable:</strong> Every shop has a verified stock position, documented compliance status, daily control procedures and an initial financial performance report.</div>
+    </div>
+  </div>
+
+  <!-- DECEMBER -->
+  <div id="dec" class="section">
+    <div class="card">
+      <h2>Month 2 — December 2026: Operational Discipline and Sales Growth</h2>
+      <p style="color:var(--muted); margin-bottom:0.5rem;">Priority: Sustain compliance while increasing customer traffic, repeat purchases and sales conversion.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="dec-progress"></div></div>
+        <div class="progress-label" id="dec-label">0 / 12 completed</div>
+      </div>
+      <div id="dec-actions"></div>
+
+      <h3>Business-specific sales priorities</h3>
+      <div class="business-box">
+        <h4>Albarka Harith Foodstuff</h4>
+        <p>Prioritize rice, beans, cooking oil, sugar, flour and other high-demand essentials. Introduce family grocery bundles, visible price labels, convenient ordering and consistent stock availability. Track daily sales and gross profit by product category.</p>
+      </div>
+      <div class="business-box">
+        <h4>Azzahra Fabrics</h4>
+        <p>Prioritize attractive fabric displays, clear product photography, WhatsApp catalogues, customer follow-ups and festive-season collections. Use Instagram and TikTok to generate qualified WhatsApp enquiries. Track enquiries, conversion rates and average order values.</p>
+      </div>
+      <div class="note"><strong>December Deliverable:</strong> Reliable daily controls, improved product presentation, active customer engagement and measurable sales growth without compromising gross margins.</div>
+    </div>
+  </div>
+
+  <!-- JANUARY -->
+  <div id="jan" class="section">
+    <div class="card">
+      <h2>Month 3 — January 2027: Performance Optimization and Sustainability</h2>
+      <p style="color:var(--muted); margin-bottom:0.5rem;">Priority: Verify improvements and make successful practices permanent.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="jan-progress"></div></div>
+        <div class="progress-label" id="jan-label">0 / 10 completed</div>
+      </div>
+      <div id="jan-actions"></div>
+      <div class="note"><strong>January Deliverable:</strong> A documented, independently tested operating system, reliable financial reports and a practical sales improvement programme for the next quarter.</div>
+    </div>
+  </div>
+
+  <!-- SCORECARD -->
+  <div id="scorecard" class="section">
+    <div class="card">
+      <h2>90-Day Performance Scorecard</h2>
+      <p style="margin-bottom:1rem; color:var(--muted);">Recommended management targets. Mark each item once verified at the end of January. Compliance measures reflect existing policies; sales targets are provisional pending November baseline.</p>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="kpi-progress"></div></div>
+        <div class="progress-label" id="kpi-label">0 / 15 verified</div>
+      </div>
+      <div class="kpi-grid" id="kpi-list"></div>
+    </div>
+  </div>
+
+  <!-- ROUTINES -->
+  <div id="routines" class="section">
+    <div class="card">
+      <h2>Daily, Weekly & Monthly Management Routines</h2>
+      <p style="margin-bottom:1rem; color:var(--muted);">The system must function even when the Compliance Officer (part-time/hybrid) is not physically present.</p>
+      <table style="width:100%; border-collapse:collapse; font-size:0.9rem;">
+        <thead>
+          <tr style="background:#f8fafc; text-align:left;">
+            <th style="padding:0.65rem; border-bottom:2px solid var(--border);">Frequency</th>
+            <th style="padding:0.65rem; border-bottom:2px solid var(--border);">Responsible</th>
+            <th style="padding:0.65rem; border-bottom:2px solid var(--border);">Required Output</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td style="padding:0.65rem; border-bottom:1px solid var(--border);"><strong>Daily — opening</strong></td><td>Branch Manager</td><td>Cleanliness, staff hygiene, stock presentation, POS and Shopkite readiness</td></tr>
+          <tr><td style="padding:0.65rem; border-bottom:1px solid var(--border);"><strong>Daily — closing</strong></td><td>Branch Manager / Cashier</td><td>Sales report, receipts, cash reconciliation, transfer verification and stock exceptions</td></tr>
+          <tr><td style="padding:0.65rem; border-bottom:1px solid var(--border);"><strong>Weekly</strong></td><td>Compliance Officer</td><td>Remote review, exception follow-up, stock checks and sales performance analysis</td></tr>
+          <tr><td style="padding:0.65rem; border-bottom:1px solid var(--border);"><strong>Monthly</strong></td><td>Compliance Officer</td><td>Surprise audit, full branch audit, financial statements and corrective-action report</td></tr>
+          <tr><td style="padding:0.65rem;"><strong>Monthly</strong></td><td>MD / Chairman</td><td>Review compliance scorecards, profitability, sales performance and major decisions</td></tr>
+        </tbody>
+      </table>
+      <div class="note" style="margin-top:1.25rem;">This 90-day plan is the execution schedule for the existing Internal Control Manual controls (branch performance scorecard, monthly audit programme, implementation roadmap). Do not create a parallel system.</div>
+    </div>
+  </div>
+
+  <!-- NOTES -->
+  <div id="notes" class="section">
+    <div class="card">
+      <h2>Important Policy Correction</h2>
+      <div class="note">
+        <strong>Discrepancy identified:</strong><br>
+        Internal Control Manual requires <strong>18 months</strong> remaining shelf life.<br>
+        Revised Job Description requires <strong>12 months</strong>.
+      </div>
+      <p><strong>Recommendation:</strong> Formally amend Section 5.7 of the Manual to reflect the approved <strong>12-month policy</strong>, with documented exceptions for products whose normal manufacturer shelf life is shorter. Communicate the updated policy to all receiving staff before implementation.</p>
+      <p style="margin-top:0.75rem;">The minimum shelf-life rule applies at <em>procurement or receipt</em>. Existing stock should be separately assessed for expiry, condition and suitability for continued sale.</p>
+    </div>
+
+    <div class="card">
+      <h2>Accountabilities</h2>
+      <ul style="padding-left:1.25rem;">
+        <li><strong>Accountable:</strong> Managing Director (MD)</li>
+        <li><strong>Implementation:</strong> Branch Managers, Sales Staff and Accounts, Internal Control & Compliance Officer</li>
+        <li><strong>Oversight:</strong> Chairman</li>
+      </ul>
+      <p style="margin-top:1rem;">Sales growth, merchandising and customer service are owned by Branch Managers. The Compliance Officer independently verifies controls, records and results.</p>
+    </div>
+
+    <div class="card">
+      <h2>Key Systems Referenced</h2>
+      <p>Shopkite recording • Official customer receipts • Stock verification • Expiry monitoring • NAFDAC compliance • Cash reconciliation • Hygiene standards • Management reporting</p>
+    </div>
+  </div>
+
+  <div class="footer-actions">
+    <button class="secondary" onclick="window.print()">Print / Save as PDF</button>
+    <button class="secondary" onclick="resetAll()">Reset All Progress</button>
+    <button class="primary" onclick="exportProgress()">Export Progress Summary</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "albarka-azzahra-90day-2026";
+
+const months = {
+  nov: [
+    { id: "n1", text: "Conduct comprehensive baseline inspections of every shop, store and warehouse. Document deficiencies with photographs.", resp: "Compliance Officer", deadline: "Week 1" },
+    { id: "n2", text: "Deep-clean all premises, shelves, storage areas, counters and display units. Introduce daily cleaning registers.", resp: "Branch Managers", deadline: "Week 1" },
+    { id: "n3", text: "Inspect every applicable product for expiry dates, packaging integrity and required NAFDAC registration. Segregate non-compliant stock immediately.", resp: "Storekeepers / Compliance", deadline: "Weeks 1–2" },
+    { id: "n4", text: "Carry out a complete physical stock count and reconcile quantities with Shopkite. Investigate all differences.", resp: "Compliance / Branch Managers", deadline: "Week 2" },
+    { id: "n5", text: "Confirm every sale is recorded in Shopkite and every customer receives an official receipt.", resp: "Branch Managers", deadline: "Immediate" },
+    { id: "n6", text: "Prohibit unauthorized credit, personal POS machines, personal accounts and undocumented stock movements.", resp: "MD / Compliance", deadline: "Immediate" },
+    { id: "n7", text: "Establish goods-receiving checklists, supplier documentation files and expiry registers.", resp: "Compliance Officer", deadline: "Week 2" },
+    { id: "n8", text: "Establish daily cash, POS, bank-transfer and Shopkite reconciliation procedures.", resp: "Accounts / Branch Managers", deadline: "Week 2" },
+    { id: "n9", text: "Identify slow-moving, obsolete and damaged stock. Prepare approved corrective-action or disposal recommendations.", resp: "Branch Managers", deadline: "Week 3" },
+    { id: "n10", text: "Produce opening stock valuations, cashbooks, supplier balances and baseline profit-and-loss reports for each business.", resp: "Accounts / Compliance", deadline: "Week 4" },
+    { id: "n11", text: "Record daily sales, customer transaction counts and average basket values to establish sales baselines.", resp: "Branch Managers", deadline: "Weeks 1–4" },
+    { id: "n12", text: "Submit the first monthly audit report with findings, responsible officers and correction deadlines.", resp: "Compliance Officer", deadline: "30 November" }
+  ],
+  dec: [
+    { id: "d1", text: "Review November audit findings and close all outstanding high-risk deficiencies.", resp: "Compliance / MD", deadline: "Week 1" },
+    { id: "d2", text: "Introduce daily sales targets for each shop, based on November performance and December demand.", resp: "MD / Branch Managers", deadline: "Week 1" },
+    { id: "d3", text: "Identify the 20 best-selling products by revenue and gross profit in each shop. Maintain availability and competitive pricing.", resp: "Branch Managers", deadline: "Weekly" },
+    { id: "d4", text: "Rearrange product displays to improve visibility, customer movement and cross-selling opportunities.", resp: "Branch Managers", deadline: "Week 1" },
+    { id: "d5", text: "Introduce structured WhatsApp marketing, product updates and customer follow-up, using customers who have consented to receive messages.", resp: "Sales / Marketing", deadline: "Weeks 1–4" },
+    { id: "d6", text: "Launch targeted December promotions with approved prices and minimum gross-margin requirements.", resp: "MD / Marketing", deadline: "Week 2" },
+    { id: "d7", text: "Train sales staff in product knowledge, customer engagement, upselling and complaint handling.", resp: "Branch Managers", deadline: "Week 2" },
+    { id: "d8", text: "Introduce a simple customer register for repeat buyers and follow-up opportunities.", resp: "Sales Staff", deadline: "Week 2" },
+    { id: "d9", text: "Conduct mystery-shopper visits to test receipts, service quality, pricing and product knowledge.", resp: "Compliance Officer", deadline: "Weeks 2–3" },
+    { id: "d10", text: "Conduct supplier, procurement and stockroom reviews, including verification of supporting documents.", resp: "Compliance Officer", deadline: "Week 3" },
+    { id: "d11", text: "Compare sales, gross margins, customer counts and stock turnover against November.", resp: "Accounts / MD", deadline: "Weekly" },
+    { id: "d12", text: "Complete December audits and submit separate monthly profit-and-loss statements for both businesses.", resp: "Compliance Officer", deadline: "31 December" }
+  ],
+  jan: [
+    { id: "j1", text: "Conduct an independent comprehensive audit of each shop, covering stock, cash, receipts, procurement, hygiene and compliance.", resp: "Compliance Officer", deadline: "Weeks 1–2" },
+    { id: "j2", text: "Review all unresolved stock variances, losses, unauthorized transactions and repeated breaches.", resp: "Compliance / MD", deadline: "Week 1" },
+    { id: "j3", text: "Analyse three months of sales, gross margins, expenses and net profitability by branch.", resp: "Accounts / MD", deadline: "Week 2" },
+    { id: "j4", text: "Classify products as fast-moving, slow-moving and non-performing. Recommend replenishment or discontinuation.", resp: "Branch Managers", deadline: "Week 2" },
+    { id: "j5", text: "Review supplier pricing, reliability, delivery quality and payment terms.", resp: "MD / Procurement", deadline: "Week 2" },
+    { id: "j6", text: "Assess employee performance using sales, receipt compliance, stock accuracy, hygiene and customer service indicators.", resp: "MD / Compliance", deadline: "Week 3" },
+    { id: "j7", text: "Establish permanent monthly stock, procurement, audit and management reporting schedules.", resp: "Compliance Officer", deadline: "Week 3" },
+    { id: "j8", text: "Review the effectiveness of WhatsApp, social media, promotions and customer retention activities.", resp: "Marketing / MD", deadline: "Week 3" },
+    { id: "j9", text: "Prepare a February–April 2027 sales and purchasing plan based on actual performance.", resp: "MD / Branch Managers", deadline: "Week 4" },
+    { id: "j10", text: "Submit a consolidated 90-day performance report with financial results, audit findings, improvements and outstanding risks.", resp: "Compliance Officer", deadline: "31 January" }
+  ]
+};
+
+const kpis = [
+  { id: "k1", text: "Sales recorded in Shopkite", target: "100%" },
+  { id: "k2", text: "Official receipt issuance", target: "100%" },
+  { id: "k3", text: "Unauthorized credit transactions", target: "Zero" },
+  { id: "k4", text: "Expired products offered for sale", target: "Zero" },
+  { id: "k5", text: "Products lacking required NAFDAC registration", target: "Zero" },
+  { id: "k6", text: "Unexplained cash variance", target: "₦0" },
+  { id: "k7", text: "Daily reconciliation completed", target: "100%" },
+  { id: "k8", text: "Monthly branch audits", target: "100%" },
+  { id: "k9", text: "Hygiene inspections passed", target: "100%" },
+  { id: "k10", text: "Daily sales growth by January", target: "+15–20% vs November*" },
+  { id: "k11", text: "Average transaction value", target: "+10% vs November*" },
+  { id: "k12", text: "Repeat customer purchases", target: "Increasing monthly" },
+  { id: "k13", text: "Gross profit", target: "Growth above November*" },
+  { id: "k14", text: "Monthly financial statements", target: "100% completed" },
+  { id: "k15", text: "Critical audit findings", target: "Zero overdue" }
+];
+
+let state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { actions: {}, kpis: {} };
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  updateAllProgress();
+}
+
+function renderActions(monthKey, containerId) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = "";
+  months[monthKey].forEach(item => {
+    const done = !!state.actions[item.id];
+    const div = document.createElement("div");
+    div.className = "action-item";
+    div.innerHTML = `
+      <input type="checkbox" data-id="${item.id}" ${done ? "checked" : ""}>
+      <div class="action-content">
+        <div class="action-title">${item.text}</div>
+        <div class="action-meta">
+          <span class="badge resp">${item.resp}</span>
+          <span class="badge deadline">${item.deadline}</span>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", e => {
+      state.actions[e.target.dataset.id] = e.target.checked;
+      save();
+    });
+  });
+}
+
+function renderKPIs() {
+  const container = document.getElementById("kpi-list");
+  container.innerHTML = "";
+  kpis.forEach(item => {
+    const done = !!state.kpis[item.id];
+    const div = document.createElement("div");
+    div.className = "kpi-item" + (done ? " done" : "");
+    div.innerHTML = `
+      <input type="checkbox" data-id="${item.id}" ${done ? "checked" : ""}>
+      <div>
+        <div style="font-weight:500;">${item.text}</div>
+        <div style="font-size:0.8rem; color:var(--muted); margin-top:0.2rem;">Target: ${item.target}</div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+  container.querySelectorAll("input").forEach(cb => {
+    cb.addEventListener("change", e => {
+      state.kpis[e.target.dataset.id] = e.target.checked;
+      e.target.closest(".kpi-item").classList.toggle("done", e.target.checked);
+      save();
+    });
+  });
+}
+
+function countDone(list, store) {
+  return list.filter(item => store[item.id]).length;
+}
+
+function updateAllProgress() {
+  const nDone = countDone(months.nov, state.actions);
+  const dDone = countDone(months.dec, state.actions);
+  const jDone = countDone(months.jan, state.actions);
+  const total = months.nov.length + months.dec.length + months.jan.length;
+  const totalDone = nDone + dDone + jDone;
+  const kDone = countDone(kpis, state.kpis);
+
+  const setBar = (id, pct) => {
+    const el = document.getElementById(id);
+    if (el) el.style.width = pct + "%";
+  };
+
+  setBar("nov-progress", (nDone / 12) * 100);
+  setBar("dec-progress", (dDone / 12) * 100);
+  setBar("jan-progress", (jDone / 10) * 100);
+  setBar("dash-progress", (totalDone / total) * 100);
+  setBar("kpi-progress", (kDone / 15) * 100);
+
+  document.getElementById("nov-label").textContent = `${nDone} / 12 completed`;
+  document.getElementById("dec-label").textContent = `${dDone} / 12 completed`;
+  document.getElementById("jan-label").textContent = `${jDone} / 10 completed`;
+  document.getElementById("dash-label").textContent = `${totalDone} of ${total} actions completed`;
+  document.getElementById("kpi-label").textContent = `${kDone} / 15 verified`;
+
+  document.getElementById("nov-pct").textContent = Math.round((nDone / 12) * 100) + "%";
+  document.getElementById("dec-pct").textContent = Math.round((dDone / 12) * 100) + "%";
+  document.getElementById("jan-pct").textContent = Math.round((jDone / 10) * 100) + "%";
+  document.getElementById("overall-pct").textContent = Math.round((totalDone / total) * 100) + "%";
+}
+
+function resetAll() {
+  if (confirm("Reset all progress? This cannot be undone.")) {
+    state = { actions: {}, kpis: {} };
+    save();
+    location.reload();
+  }
+}
+
+function exportProgress() {
+  const lines = ["90-Day Action Plan Progress Summary", "Generated: " + new Date().toLocaleString(), ""];
+  ["nov", "dec", "jan"].forEach(m => {
+    const name = m === "nov" ? "November" : m === "dec" ? "December" : "January";
+    lines.push(`=== ${name} ===`);
+    months[m].forEach(item => {
+      lines.push(`${state.actions[item.id] ? "[x]" : "[ ]"} ${item.text} (${item.resp} | ${item.deadline})`);
+    });
+    lines.push("");
+  });
+  lines.push("=== Scorecard ===");
+  kpis.forEach(item => {
+    lines.push(`${state.kpis[item.id] ? "[x]" : "[ ]"} ${item.text} — Target: ${item.target}`);
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "90-day-plan-progress.txt";
+  a.click();
+}
+
+// Tabs
+document.querySelectorAll(".nav button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.tab).classList.add("active");
+  });
+});
+
+// Init
+renderActions("nov", "nov-actions");
+renderActions("dec", "dec-actions");
+renderActions("jan", "jan-actions");
+renderKPIs();
+updateAllProgress();
+</script>
+</body>
+</html>
